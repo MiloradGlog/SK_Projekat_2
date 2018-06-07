@@ -16,17 +16,29 @@ app.use(function(req, res, next) {
 });
 
 
+/**
+ * API:
+ * /search
+ *      /all - vraca sva predavanja
+ * /retrieve
+ *      /groups = vraca sve grupe
+ *      /classrooms = vraca sve ucionice
+ */
+
+/**
+ * SEARCH API
+ */
 app.get('/search/all', function (req, res) {
     var options = {
         method: 'GET',
-        uri: 'http://127.0.0.1:' + TIMETABLE_SERVICE_PORT + '/all',
+        uri: 'http://127.0.0.1:' + TIMETABLE_SERVICE_PORT + '/search/all',
         resolveWithFullResponse: false
     };
 
     rp(options)
         .then(function (response) {
-            console.log("search all response", circularJSON.stringify(response));
-            res.send(circularJSON.stringify(response));
+            console.log("search by group response", response);
+            res.send(response);
         })
         .catch(function (err) {
             console.log("error");
@@ -36,19 +48,59 @@ app.get('/search/all', function (req, res) {
 app.get('/search/group', function (req, res) {
     var options = {
         method: 'GET',
-        uri: 'http://127.0.0.1:' + TIMETABLE_SERVICE_PORT + '/group',
+        uri: 'http://127.0.0.1:' + TIMETABLE_SERVICE_PORT + '/search/group',
+        headers: {
+            'group_name': '301'
+        },
         resolveWithFullResponse: false
     };
 
     rp(options)
         .then(function (response) {
-            console.log("search by group response", circularJSON.stringify(response));
-            res.send(circularJSON.stringify(response));
+            console.log("search by group response", response);
+            res.send(response);
         })
         .catch(function (err) {
             console.log("error");
         });
 })
+/**
+ * RETRIEVE API
+ */
+app.get('/retrieve/groups', function (req, res) {
+    var options = {
+        method: 'GET',
+        uri: 'http://127.0.0.1:' + TIMETABLE_SERVICE_PORT + '/retrieve/groups',
+        resolveWithFullResponse: false
+    };
+
+    rp(options)
+        .then(function (response) {
+            console.log("search by group response", response);
+            res.send(response);
+        })
+        .catch(function (err) {
+            console.log("error");
+        });
+})
+
+app.get('/retrieve/classrooms', function (req, res) {
+    var options = {
+        method: 'GET',
+        uri: 'http://127.0.0.1:' + TIMETABLE_SERVICE_PORT + '/retrieve/classrooms',
+        resolveWithFullResponse: false
+    };
+
+    rp(options)
+        .then(function (response) {
+            console.log("search by group response", response);
+            res.send(response);
+        })
+        .catch(function (err) {
+            console.log("error");
+        });
+})
+
 
 
 
