@@ -45,6 +45,43 @@ app.get('/search/all', function (req, res) {
 
 
 app.get('/search/group', function (req, res) {
+
+    var group = '401';
+    var classroom = 'Ucionica 4';
+    var day = 'Ponedeljak';
+
+    var addClassroomQuery = "INSERT INTO ucionice (naziv_ucionice) VALUES ('" + classroom + "');";
+    var addGroupQuery = "INSERT INTO grupe (naziv_grupe) VALUES ('" + group + "');";
+
+    var getGroupIDQuery = "SELECT * FROM grupe WHERE naziv_grupe = '" + group + "'";
+
+    var groupID = -1;
+    var classroomID = -1;
+    var dayID = -1;
+
+    //DODAJEM GRUPE AKO NE POSTOJE
+    con.query(addGroupQuery, function (err, result, fields) {
+        if (err) console.log(err.message);
+    });
+    con.query(addClassroomQuery, function (err, result, fields) {
+        if (err) console.log(err.message);
+    });
+
+    //SETUJEMO ID
+    con.query(getGroupIDQuery, function (err, result, fields) {
+        if (err) throw err;
+        groupID = result[0].id_grupa;
+        console.log('id grupe u conn', groupID);
+    });
+    console.log('id grupe: ', groupID);
+    /*
+        con.query(addGroupQuery, function (err, result, fields) {
+            if (err) throw err;
+
+        });
+    */
+
+
     console.log("group request", req.query.group_name);
     con.query(searchAllQuery, function (err, result, fields) {
         if (err) throw err;
@@ -53,6 +90,8 @@ app.get('/search/group', function (req, res) {
         console.log("poslao leaderboard");
     });
 })
+
+
 
 app.get('/retrieve/groups', function (req, res) {
     con.query(getGroupsQuery, function (err, result, fields) {

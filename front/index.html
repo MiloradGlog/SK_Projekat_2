@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html ng-app="njp">
+<head>
+ <title>Hello World, AngularJS - ViralPatel.net</title>
+ <script type="text/javascript"
+         src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.8/angular.min.js"></script>
+ <script src="https://ajax.googleapis.com/ajax/libs/dojo/1.13.0/dojo/dojo.js"></script>
+ <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+ <script src="path/to/angular.js"></script>
+ <script src="path/to/angular-route.js"></script>
+ <script type="text/javascript">
+     var app = angular.module("tut",['ngRoute']);
+     app.controller("ctrl", function($scope, $http){
+         $http.get("predavanja.json").then(function(response){
+             $scope.casovi = response.data;
+         });
+     });
+
+ </script>
+
+
+
+</head>
+<body style="font-family: 'Comic Sans MS'; background-color:aliceblue">
+
+<form name = "unos">
+ <h1>Unos novog predavanja:</h1>
+ Predmet:<br/><input type="text" ng-model="cas.ime"><br/>
+ Dan:<br/><input type="text" ng-model="cas.dan"><br/>
+ Ucionica:<br/><input type=text" ng-model="cas.uci"><br/>
+ Grupa:<br/><input type="text" ng-model="cas.grupa"><br/>
+ <button>Dodaj predmet:</button>
+ <br/>
+ <h1>Lista predavanja:</h1>
+</form>
+<div ng-app="tut" ng-controller="ctrl">
+ <table border="1">
+  <tr>
+   <th>Predmet</th>
+   <th>Profesor</th>
+   <th>Ucionica</th>
+   <th>Tip nastave</th>
+  </tr>
+  <tr ng-repeat="cas in casovi">
+   <td>{{cas.naziv_predmeta}}</td>
+   <td>{{cas.naziv_ucionice}}</td>
+   <td>{{cas.naziv_dana}}</td>
+   <td>{{cas.naziv_grupe}}</td>
+  </tr>
+ </table>
+ <br/>
+ <select>
+  <option ng-repeat="x in cas.naziv_predmeta"></option>
+ </select>
+ <body onLoad="buildHtmlTable('#excelDataTable')">
+ <table id="excelDataTable" border="1">
+ </table>
+
+</div>
+</body>
+</html>
