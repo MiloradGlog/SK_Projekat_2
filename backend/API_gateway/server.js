@@ -18,8 +18,8 @@ app.use(function(req, res, next) {
 
 /**
  * API:
- * /search
- *      /all - vraca sva predavanja
+ * /search - vraca sva predavanja
+ * /add - dodaje predavanje
  * /retrieve
  *      /groups = vraca sve grupe
  *      /classrooms = vraca sve ucionice
