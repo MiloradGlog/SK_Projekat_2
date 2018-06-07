@@ -1,0 +1,20 @@
+{
+  "name": "nodejs-starter-sample",
+  "version": "1.0.1",
+  "description": "NodeJs Starter Sample",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "application": {
+    "port": 8080,
+    "modules": {}
+  },
+  "dependencies": {
+    "cors": "^2.8.4",
+    "express": "^4.16.3",
+    "mysql": "^2.15.0",
+    "recursivejs": "git+https://github.com/mpahenrique/recursivejs.git",
+    "underscore": "^1.8.3"
+  }
+}
