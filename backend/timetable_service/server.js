@@ -5,11 +5,6 @@ var mysql = require('mysql');
 var app = express();
 
 
-var searchAllQuery = "SELECT predavanja.naziv_predmeta, ucionice.naziv_ucionice, dani.naziv_dana, grupe.naziv_grupe\n" +
-    "FROM predavanja \n" +
-    "JOIN ucionice ON predavanja.id_ucionica = ucionice.id_ucionica \n" +
-    "JOIN dani ON predavanja.id_dan = dani.id_dan\n" +
-    "JOIN grupe ON predavanja.id_grupa = grupe.id_grupa;";
 
 var getGroupsQuery = "SELECT naziv_grupe FROM grupe";
 var getClassroomsQuery = "SELECT naziv_ucionice FROM ucionice";
@@ -35,8 +30,51 @@ con.connect(function(err) {
 
 
 //sql test
-app.get('/search/all', function (req, res) {
-    con.query(searchAllQuery, function (err, result, fields) {
+app.get('/search', function (req, res) {
+    var searchQuery = "SELECT predavanja.naziv_predmeta, ucionice.naziv_ucionice, dani.naziv_dana, grupe.naziv_grupe\n" +
+        "FROM predavanja \n" +
+        "JOIN ucionice ON predavanja.id_ucionica = ucionice.id_ucionica \n" +
+        "JOIN dani ON predavanja.id_dan = dani.id_dan\n" +
+        "JOIN grupe ON predavanja.id_grupa = grupe.id_grupa ";
+
+    var groupID = req.query.groupID;
+    var classroomID = req.query.classroomID;
+    var dayID = req.query.dayID;
+
+    var first = true;
+
+    if (isNumber(groupID)){
+        console.log('group nije null');
+        if (first){
+            searchQuery += "WHERE predavanja.id_grupa = "+ groupID;
+            first = false;
+        }
+        else {
+            searchQuery += " AND predavanja.id_grupa = "+ groupID;
+        }
+    }
+    if (isNumber(classroomID)){
+        if (first){
+            searchQuery += "WHERE predavanja.id_ucionica = "+ classroomID;
+            first = false;
+        }
+        else {
+            searchQuery += " AND predavanja.id_ucionica = "+ classroomID;
+        }
+    }
+    if (isNumber(dayID)){
+        if (first){
+            searchQuery += "WHERE predavanja.id_dan = "+ dayID;
+            first = false;
+        }
+        else {
+            searchQuery += " AND predavanja.id_dan = "+ dayID;
+        }
+    }
+
+    console.log(searchQuery);
+
+    con.query(searchQuery, function (err, result, fields) {
         if (err) throw err;
         res.send(result);
         console.log("poslao leaderboard");
@@ -44,54 +82,26 @@ app.get('/search/all', function (req, res) {
 })
 
 
-app.get('/search/group', function (req, res) {
+app.get('/add', function (req, res) {
 
-    var group = '401';
-    var classroom = 'Ucionica 4';
-    var day = 'Ponedeljak';
+    var subject = req.query.subject;
+    var groupID = req.query.groupID;
+    var classroomID = req.query.classroomID;
+    var dayID = req.query.dayID;
 
-    var addClassroomQuery = "INSERT INTO ucionice (naziv_ucionice) VALUES ('" + classroom + "');";
-    var addGroupQuery = "INSERT INTO grupe (naziv_grupe) VALUES ('" + group + "');";
+    var query = "INSERT INTO predavanja (naziv_predmeta, id_grupa, id_dan, id_ucionica) \n" +
+        "VALUES (\"" + subject + "\", "+ groupID +", "+ dayID +", "+ classroomID +");"
+    console.log(query);
 
-    var getGroupIDQuery = "SELECT * FROM grupe WHERE naziv_grupe = '" + group + "'";
-
-    var groupID = -1;
-    var classroomID = -1;
-    var dayID = -1;
-
-    //DODAJEM GRUPE AKO NE POSTOJE
-    con.query(addGroupQuery, function (err, result, fields) {
-        if (err) console.log(err.message);
-    });
-    con.query(addClassroomQuery, function (err, result, fields) {
-        if (err) console.log(err.message);
-    });
-
-    //SETUJEMO ID
-    con.query(getGroupIDQuery, function (err, result, fields) {
-        if (err) throw err;
-        groupID = result[0].id_grupa;
-        console.log('id grupe u conn', groupID);
-    });
-    console.log('id grupe: ', groupID);
-    /*
-        con.query(addGroupQuery, function (err, result, fields) {
-            if (err) throw err;
-
-        });
-    */
-
-
-    console.log("group request", req.query.group_name);
-    con.query(searchAllQuery, function (err, result, fields) {
-        if (err) throw err;
-        res.send(req.query.group_name);
-        console.log("group request", req.query.group_name);
-        console.log("poslao leaderboard");
+    con.query(query, function (err, result, fields) {
+        if (err) {
+            res.send("Error!");
+            throw err;
+        }
+        res.send("Uspeh!");
+        console.log("dodao predmet");
     });
 })
-
-
 
 app.get('/retrieve/groups', function (req, res) {
     con.query(getGroupsQuery, function (err, result, fields) {
@@ -109,7 +119,7 @@ app.get('/retrieve/classrooms', function (req, res) {
     });
 })
 
-
+function isNumber(n) { return !isNaN(parseFloat(n)) && !isNaN(n - 0) }
 
 
 var server = app.listen(8081, function () {

@@ -25,13 +25,22 @@ app.use(function(req, res, next) {
  *      /classrooms = vraca sve ucionice
  */
 
+
 /**
  * SEARCH API
  */
-app.get('/search/all', function (req, res) {
+app.get('/search', function (req, res) {
+
+    var groupID = req.query.groupID;
+    var classroomID = req.query.classroomID;
+    var dayID = req.query.dayID;
+
     var options = {
         method: 'GET',
-        uri: 'http://127.0.0.1:' + TIMETABLE_SERVICE_PORT + '/search/all',
+        uri: 'http://127.0.0.1:' + TIMETABLE_SERVICE_PORT + '/search?' +
+        'classroomID=' + classroomID + '&' +
+        'groupID=' + groupID + '&' +
+        'dayID=' + dayID,
         resolveWithFullResponse: false
     };
 
@@ -45,25 +54,36 @@ app.get('/search/all', function (req, res) {
         });
 })
 
-app.get('/search/group', function (req, res) {
+
+/**
+ * ADD API
+ */
+app.get('/add', function (req, res) {
+    var subject = req.query.subject;
+    var groupID = req.query.groupID;
+    var classroomID = req.query.classroomID;
+    var dayID = req.query.dayID;
+
     var options = {
         method: 'GET',
-        uri: 'http://127.0.0.1:' + TIMETABLE_SERVICE_PORT + '/search/group',
-        headers: {
-            'group_name': '301'
-        },
-        resolveWithFullResponse: false
+        uri: 'http://127.0.0.1:' + TIMETABLE_SERVICE_PORT + '/add?' +
+        'subject=' + subject + '&' +
+        'classroomID=' + classroomID + '&' +
+        'groupID=' + groupID + '&' +
+        'dayID=' + dayID,
+        json: true
     };
 
     rp(options)
         .then(function (response) {
-            console.log("search by group response", response);
+            console.log("add response:", response);
             res.send(response);
         })
         .catch(function (err) {
             console.log("error");
         });
 })
+
 /**
  * RETRIEVE API
  */
