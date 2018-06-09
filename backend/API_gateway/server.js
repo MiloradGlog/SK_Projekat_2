@@ -1,8 +1,5 @@
 const express = require('express');
-const mysql = require('mysql');
-const request = require('request');
 const rp = require('request-promise');
-const circularJSON = require('circular-json');
 
 const TIMETABLE_SERVICE_PORT = 8081;
 
@@ -23,6 +20,7 @@ app.use(function(req, res, next) {
  * /retrieve
  *      /groups = vraca sve grupe
  *      /classrooms = vraca sve ucionice
+ *      /days = vraca sve dane
  */
 
 
@@ -108,6 +106,23 @@ app.get('/retrieve/classrooms', function (req, res) {
     var options = {
         method: 'GET',
         uri: 'http://127.0.0.1:' + TIMETABLE_SERVICE_PORT + '/retrieve/classrooms',
+        resolveWithFullResponse: false
+    };
+
+    rp(options)
+        .then(function (response) {
+            console.log("search by group response", response);
+            res.send(response);
+        })
+        .catch(function (err) {
+            console.log("error");
+        });
+})
+
+app.get('/retrieve/days', function (req, res) {
+    var options = {
+        method: 'GET',
+        uri: 'http://127.0.0.1:' + TIMETABLE_SERVICE_PORT + '/retrieve/days',
         resolveWithFullResponse: false
     };
 

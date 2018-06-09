@@ -6,8 +6,9 @@ var app = express();
 
 
 
-var getGroupsQuery = "SELECT naziv_grupe FROM grupe";
-var getClassroomsQuery = "SELECT naziv_ucionice FROM ucionice";
+var getGroupsQuery = "SELECT * FROM grupe";
+var getClassroomsQuery = "SELECT * FROM ucionice";
+var getDaysQuery = "SELECT * FROM dani";
 
 
 app.use(function(req, res, next) {
@@ -113,6 +114,14 @@ app.get('/retrieve/groups', function (req, res) {
 
 app.get('/retrieve/classrooms', function (req, res) {
     con.query(getClassroomsQuery, function (err, result, fields) {
+        if (err) throw err;
+        res.send(result);
+        console.log("poslao leaderboard");
+    });
+})
+
+app.get('/retrieve/days', function (req, res) {
+    con.query(getDaysQuery, function (err, result, fields) {
         if (err) throw err;
         res.send(result);
         console.log("poslao leaderboard");

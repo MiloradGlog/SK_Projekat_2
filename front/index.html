@@ -1,61 +1,221 @@
-<!DOCTYPE html>
-<html ng-app="njp">
+<!doctype html>
+<html lang="en">
 <head>
- <title>Hello World, AngularJS - ViralPatel.net</title>
- <script type="text/javascript"
-         src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.8/angular.min.js"></script>
- <script src="https://ajax.googleapis.com/ajax/libs/dojo/1.13.0/dojo/dojo.js"></script>
- <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
- <script src="path/to/angular.js"></script>
- <script src="path/to/angular-route.js"></script>
- <script type="text/javascript">
-     var app = angular.module("tut",['ngRoute']);
-     app.controller("ctrl", function($scope, $http){
-         $http.get("predavanja.json").then(function(response){
-             $scope.casovi = response.data;
-         });
-     });
+ <style>
+  table {
+   font-family: arial, sans-serif;
+   border-collapse: collapse;
+   width: 100%;
+  }
 
- </script>
+  td, th {
+   border: 1px solid #dddddd;
+   text-align: left;
+   padding: 8px;
+  }
+
+  tr:nth-child(even) {
+   background-color: #dddddd;
+  }
+ </style>
 
 
+ <meta charset="utf-8">
+ <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+ <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
 
 </head>
-<body style="font-family: 'Comic Sans MS'; background-color:aliceblue">
+<body onload="start()">
+<h1 style="font-weight: bold">RAF Raspored</h1>
+<div class="container" style = "width: 650px;"
+     id="kontejner">
+ <div style = "display: inline-block" id = "proba">
+  <select id="dd" name = "locality">
+  </select>
+  <select id="cc" name = "localityc">
+  </select>
+  <select id="ee" name = "localitye">
+  </select>
+  <button class = "btn btn-primary"
+          style = "width: 150px"
+          onclick="kompletnaTabela()"
 
-<form name = "unos">
- <h1>Unos novog predavanja:</h1>
- Predmet:<br/><input type="text" ng-model="cas.ime"><br/>
- Dan:<br/><input type="text" ng-model="cas.dan"><br/>
- Ucionica:<br/><input type=text" ng-model="cas.uci"><br/>
- Grupa:<br/><input type="text" ng-model="cas.grupa"><br/>
- <button>Dodaj predmet:</button>
- <br/>
- <h1>Lista predavanja:</h1>
-</form>
-<div ng-app="tut" ng-controller="ctrl">
- <table border="1">
-  <tr>
-   <th>Predmet</th>
-   <th>Profesor</th>
-   <th>Ucionica</th>
-   <th>Tip nastave</th>
-  </tr>
-  <tr ng-repeat="cas in casovi">
-   <td>{{cas.naziv_predmeta}}</td>
-   <td>{{cas.naziv_ucionice}}</td>
-   <td>{{cas.naziv_dana}}</td>
-   <td>{{cas.naziv_grupe}}</td>
-  </tr>
- </table>
- <br/>
- <select>
-  <option ng-repeat="x in cas.naziv_predmeta"></option>
- </select>
- <body onLoad="buildHtmlTable('#excelDataTable')">
- <table id="excelDataTable" border="1">
- </table>
+  >Pretraga</button>
 
+  <br><br>
+ </div>
 </div>
+
+<table id="table">
+</table>
+
+<div class='wrapper'
+     id = "dodaj_div">
+ <br/>
+ <h1>Dodaj novo predavanje:</h1>
+ <input type='text' id='predmet' placeholder='Predmet'>
+ <input type='text' id='ucionica' placeholder='Ucionica'>
+ <input type='text' id='dan' placeholder='Dan'>
+ <input type='text' id='grupa' placeholder='Grupa'>
+ <button class = "btn btn-primary"
+         style = "width: 150px"
+         onclick="dodajPredavanje()"
+
+ >Dodaj</button>
+</div>
+
+<!-- JavaScript -->
+
+<script>
+    function dodajPredavanje(){
+        var data = {  subject: document.getElementById('predmet').value,
+            classroomID: document.getElementById('ucionica').value,
+            dayID: document.getElementById('dan').value,
+            groupID: document.getElementById('grupa').value}
+
+        console.log(data);
+        var response = $.ajax({
+            url: "http://localhost:8080/add",
+            method: "GET",
+            data: data,
+            dataType: "text",
+            success: function(response) {
+                alert('uspeh');
+            },
+
+            failiure:function(data, status) {
+                alert('Request failed.  Returned status of ' + status);
+            }
+        });
+    }
+
+    function kompletnaTabela(){
+
+        var data = {
+            classroomID: document.getElementById('ee').value,
+            dayID: document.getElementById('cc').value,
+            groupID: document.getElementById('dd').value}
+
+        var response = $.ajax({
+            url: "http://localhost:8080/search",
+            method: "GET",
+            dataType: "JSON",
+            data: data,
+            beforeSend: function () {
+                console.log('saljem ajax zahtev search all...');
+            },
+            success: function(response) {
+                var obj = response;
+                console.log(obj);
+                popuniTabelu(obj);
+            },
+
+            failiure:function(data, status) {
+                alert('Request failed.  Returned status of ' + status);
+            }
+        });
+    }
+
+    function JSONLenght(obj){
+        var count = Object.keys(obj).length;
+
+        return count;
+    }
+
+    function popuniTabelu(obj){
+        var table = document.getElementById("table");
+
+        while (table.childNodes.length) {
+            table.removeChild(table.childNodes[0]);
+        }
+
+        var header = table.createTHead();
+        row = header.insertRow(0);
+        row.insertCell(0).innerHTML = "Predmet";
+        row.insertCell(1).innerHTML = "Ucionica";
+        row.insertCell(2).innerHTML = "Dan";
+        row.insertCell(3).innerHTML = "Grupa";
+
+        for (var i = 0; i < JSONLenght(obj); i++){
+            var row = table.insertRow(i+1);
+            row.insertCell(0).innerHTML = obj[i].naziv_predmeta;
+            row.insertCell(1).innerHTML = obj[i].naziv_ucionice;
+            row.insertCell(2).innerHTML = obj[i].naziv_dana;
+            row.insertCell(3).innerHTML = obj[i].naziv_grupe;
+        }
+    }
+
+    function start()
+    {
+        loadDani();
+        loadUcionice();
+        loadGrupe();
+    }
+
+    function loadGrupe() {
+        var dropdown = $('#dd');
+
+        dropdown.empty();
+
+        dropdown.append('<option selected="true" disabled>Izaberi grupu</option>');
+        dropdown.prop('selectedIndex', 0);
+
+        var url = 'http://localhost:8080/retrieve/groups';
+
+        dropdown.append($('<option></option>').attr('value', null).text("Sve grupe"));
+// Populate dropdown with list of provinces
+        $.getJSON(url, function (data) {
+            $.each(data, function (key, entry) {
+                dropdown.append($('<option></option>').attr('value', entry.id_grupa).text(entry.naziv_grupe));
+            })
+        });
+    }
+
+    function loadUcionice() {
+        var dropdown = $('#cc');
+
+        dropdown.empty();
+
+        dropdown.append('<option selected="true" disabled>Izaberi ucionicu</option>');
+        dropdown.prop('selectedIndex', 0);
+
+        var url = 'http://localhost:8080/retrieve/classrooms';
+
+        dropdown.append($('<option></option>').attr('value', null).text("Sve ucionice"));
+
+        $.getJSON(url, function (data) {
+            $.each(data, function (key, entry) {
+                dropdown.append($('<option></option>').attr('value', entry.id_ucionica).text(entry.naziv_ucionice));
+            })
+        });
+    }
+    function loadDani() {
+        var dropdown = $('#ee');
+
+        dropdown.empty();
+
+        dropdown.append('<option selected="true" disabled>Izaberi dan</option>');
+        dropdown.prop('selectedIndex', 0);
+
+        var url = 'http://localhost:8080/retrieve/days';
+
+        dropdown.append($('<option></option>').attr('value', null).text("Svi dani"));
+// Populate dropdown with list of provinces
+        $.getJSON(url, function (data) {
+            $.each(data, function (key, entry) {
+                dropdown.append($('<option></option>').attr('value', entry.id_dan).text(entry.naziv_dana));
+            })
+        });
+    }
+
+
+</script>
+
+
+<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+<script src="https://ajax.aspnetcdn.com/ajax/jQuery/jquery-3.3.1.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
 </body>
 </html>
